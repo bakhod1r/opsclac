@@ -1,6 +1,6 @@
 import "../style.css";
 import { bindTooltips, stackedBar } from "../charts.ts";
-import { calculate, defaults, fmt, fmtBytesGB, type Inputs, type Step } from "./calc.ts";
+import { calculate, defaults, fmt, fmtBytesGB, formulaSheet, formulaTable, type Inputs, type Step } from "./calc.ts";
 
 type Key = keyof Inputs;
 interface Field {
@@ -167,14 +167,14 @@ function render() {
     <div class="card summary">
       
       <div class="tiles">
-        <div><b>${fmtBytesGB(r.perNodeDiskGB)}</b><span>SSD / node</span></div>
-        <div><b>${fmtBytesGB(r.perNodeDiskWithGrowthGB)}</b><span>SSD / node (+growth)</span></div>
-        <div><b>${fmtBytesGB(r.clusterDiskGB)}</b><span>Cluster total (${r.nodes} nodes)</span></div>
-        <div><b>${fmt(r.writeMBsPeak)} MB/s</b><span>Write peak</span></div>
-        <div><b>${fmt(r.readMBs)} MB/s</b><span>Read</span></div>
-        <div><b>${fmt(r.iops, 0)}</b><span>IOPS</span></div>
-        <div><b>${r.ramGB} GB</b><span>RAM / node</span></div>
-        <div><b>${r.vcpu}</b><span>vCPU / node</span></div>
+        <div><b>${fmtBytesGB(r.perNodeDiskGB)}</b><span>SSD / node</span><code class="tf">T ÷ shards ÷ fill</code></div>
+        <div><b>${fmtBytesGB(r.perNodeDiskWithGrowthGB)}</b><span>SSD / node (+growth)</span><code class="tf">N × (1 + growth)</code></div>
+        <div><b>${fmtBytesGB(r.clusterDiskGB)}</b><span>Cluster total (${r.nodes} nodes)</span><code class="tf">T × replicas ÷ fill</code></div>
+        <div><b>${fmt(r.writeMBsPeak)} MB/s</b><span>Write peak</span><code class="tf">ingest × write amp.</code></div>
+        <div><b>${fmt(r.readMBs)} MB/s</b><span>Read</span><code class="tf">scan ÷ latency × queries</code></div>
+        <div><b>${fmt(r.iops, 0)}</b><span>IOPS</span><code class="tf">(W + R) ÷ block</code></div>
+        <div><b>${r.ramGB} GB</b><span>RAM / node</span><code class="tf">≈ 20% of daily data</code></div>
+        <div><b>${r.vcpu}</b><span>vCPU / node</span><code class="tf">read MB/s ÷ 250</code></div>
       </div>
       <div class="chart">${stackedBar(r.signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}</div>
       <table class="bysignal">
@@ -189,8 +189,9 @@ function render() {
         </tbody>
       </table>
     </div>
+    <div class="card"><h2>Formulas</h2>${formulaTable(formulaSheet(inputs, r))}</div>
     <details class="card"${open}>
-      <summary>How it's calculated</summary>
+      <summary>Step-by-step details</summary>
       ${r.signals.map((s) => `<h3>${s.name}</h3>${stepsTable(s.steps)}`).join("")}
       <h3>Disk, throughput, IOPS</h3>
       ${stepsTable(r.steps)}

@@ -281,3 +281,50 @@ export function calculate(i: Inputs): Result {
     steps,
   };
 }
+
+export interface Formula {
+  name: string;
+  symbolic: string; // with named variables
+  numbers: string; // the same formula with this input's numbers
+  result: string;
+}
+
+/** The key formulas, readable top to bottom: each line uses results of the lines above. */
+export function formulaSheet(i: Inputs, r: Result): Formula[] {
+  const [l, t, m] = r.signals;
+  const rps = i.requestsPerHour / 3600;
+  const perDay = r.signals.reduce((s, x) => s + x.compressedGBPerDay, 0);
+  const days = i.retentionDays + i.extraPartitionDays;
+  return [
+    { name: "Requests/s", symbolic: "RPS = requests/hour ÷ 3600",
+      numbers: `${fmt(i.requestsPerHour, 0)} ÷ 3600`, result: `${fmt(rps)} /s` },
+    { name: "Log lines/s", symbolic: "L = RPS × lines/request + extra",
+      numbers: `${fmt(rps)} × ${i.logLinesPerRequest} + ${fmt(i.logExtraEps)}`, result: `${fmt(l.epsAvg)} /s` },
+    { name: "Spans/s", symbolic: "S = RPS × spans/request × sampling",
+      numbers: `${fmt(rps)} × ${i.spansPerRequest} × ${i.traceSamplingPct}%`, result: `${fmt(t.epsAvg)} /s` },
+    { name: "Samples/s", symbolic: "M = series ÷ scrape interval",
+      numbers: `${fmt(i.activeSeries, 0)} ÷ ${i.scrapeIntervalSec}`, result: `${fmt(m.epsAvg)} /s` },
+    { name: "Per day (compressed)", symbolic: "D = Σ events/s × bytes × 86400 ÷ compression",
+      numbers: `${fmtBytesGB(l.compressedGBPerDay)} + ${fmtBytesGB(t.compressedGBPerDay)} + ${fmtBytesGB(m.compressedGBPerDay)}`,
+      result: `${fmtBytesGB(perDay)} /day` },
+    { name: "Stored (1 copy)", symbolic: "T = D × (retention + extra days)",
+      numbers: `${fmtBytesGB(perDay)} × ${days}`, result: fmtBytesGB(r.totalRetainedGB) },
+    { name: "SSD per node", symbolic: "N = T ÷ shards ÷ max fill",
+      numbers: `${fmtBytesGB(r.totalRetainedGB)} ÷ ${i.shards} ÷ ${i.maxDiskFillPct}%`, result: fmtBytesGB(r.perNodeDiskGB) },
+    { name: "SSD per node + growth", symbolic: "N × (1 + growth)",
+      numbers: `${fmtBytesGB(r.perNodeDiskGB)} × ${1 + i.yearlyGrowthPct / 100}`, result: fmtBytesGB(r.perNodeDiskWithGrowthGB) },
+    { name: "Cluster total", symbolic: "C = T × replicas ÷ max fill",
+      numbers: `${fmtBytesGB(r.totalRetainedGB)} × ${i.replicas} ÷ ${i.maxDiskFillPct}%`, result: fmtBytesGB(r.clusterDiskGB) },
+    { name: "Write peak", symbolic: "W = D_peak ÷ 86400 ÷ shards × write amp.",
+      numbers: `peak ingest × ${i.writeAmplification}`, result: `${fmt(r.writeMBsPeak)} MB/s` },
+    { name: "Read", symbolic: "R = scanned GB ÷ latency × queries ÷ shards",
+      numbers: `${i.scannedGBPerQuery} GB ÷ ${i.targetLatencySec} s × ${i.concurrentQueries} ÷ ${i.shards}`, result: `${fmt(r.readMBs)} MB/s` },
+    { name: "IOPS", symbolic: "(W + R) ÷ block size",
+      numbers: `(${fmt(r.writeMBsPeak)} + ${fmt(r.readMBs)}) MB/s ÷ ${i.ioBlockKB} KB`, result: fmt(r.iops, 0) },
+  ];
+}
+
+export const formulaTable = (f: Formula[]): string =>
+  `<table class="fsheet"><thead><tr><th>Result</th><th>Formula</th><th>With your numbers</th><th class="num">=</th></tr></thead><tbody>${f
+    .map((x) => `<tr><th>${x.name}</th><td class="sym">${x.symbolic}</td><td class="f">${x.numbers}</td><td class="v">${x.result}</td></tr>`)
+    .join("")}</tbody></table>`;

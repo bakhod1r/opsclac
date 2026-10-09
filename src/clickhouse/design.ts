@@ -1,6 +1,6 @@
 import "../style.css";
 import { bindTooltips, stackedBar } from "../charts.ts";
-import { calculate, defaults, fmt, fmtBytesGB, type Inputs } from "./calc.ts";
+import { calculate, defaults, fmt, fmtBytesGB, formulaSheet, formulaTable, type Inputs } from "./calc.ts";
 
 // Reference workload: 3,000 req/s at the API gateway, 10 services behind it.
 const RPS = 3000;
@@ -138,6 +138,8 @@ Traces:  ${fmt(RPS, 0)} × ${mid.i.spansPerRequest} × ${mid.s.sampling}% = ${fm
 Metrics: ${fmt(mid.s.series, 0)} ÷ ${mid.s.interval} s = ${fmt(mm.epsAvg, 0)} samples/s × 100 B × 86400 = ${fmtBytesGB(mm.rawGBPerDay)}/day ÷ ${mid.s.comp[2]} = ${fmtBytesGB(mm.compressedGBPerDay)}/day
 Stored:  ${fmtBytesGB(m.signals.reduce((a, s) => a + s.compressedGBPerDay, 0))}/day × (${mid.s.days} + 1) days = ${fmtBytesGB(m.totalRetainedGB)}
 Node:    ${fmtBytesGB(m.totalRetainedGB)} ÷ ${mid.s.shards} shards ÷ 75% = ${fmtBytesGB(m.perNodeDiskGB)}  (+30% growth = ${fmtBytesGB(m.perNodeDiskWithGrowthGB)})</pre>
+
+  <div class="card">${formulaTable(formulaSheet(mid.i, mid.r))}</div>
 
   <h2>Hardware</h2>
   <div class="card"><table class="bysignal design-t">

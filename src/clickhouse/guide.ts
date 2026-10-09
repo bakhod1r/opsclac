@@ -1,6 +1,6 @@
 import "../style.css";
 import { bindTooltips, lineChart, stackedBar } from "../charts.ts";
-import { calculate, defaults, fmt, fmtBytesGB, type Step } from "./calc.ts";
+import { calculate, defaults, fmt, fmtBytesGB, formulaSheet, formulaTable, type Step } from "./calc.ts";
 
 const i = defaults;
 const r = calculate(i);
@@ -27,6 +27,12 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <h2>The idea in one line</h2>
   <pre class="formula">disk = events/s × bytes/event × 86 400 ÷ compression × days × replicas ÷ max fill</pre>
   <p>Everything else is splitting that line into steps and adding I/O on top.</p>
+
+  <h2>Cheat sheet</h2>
+  <p>All formulas on one screen. Read top to bottom: each line uses the results above it.</p>
+  <div class="card">${formulaTable(formulaSheet(i, r))}</div>
+  <p class="note">Symbols: RPS requests/s · L, S, M log lines, spans, metric samples per second · D compressed bytes per day ·
+  T stored bytes (one copy) · N disk per node · C cluster disk · W, R write and read MB/s.</p>
 
   <h2>1. Events per second</h2>
   <p>Each request produces log lines and trace spans. Metrics don't depend on requests: Prometheus
