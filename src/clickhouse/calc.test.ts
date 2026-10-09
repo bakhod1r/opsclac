@@ -31,3 +31,14 @@ assert.equal(p.best?.type, "r6a.4xlarge"); // needs 16 vCPU, 48 GB
 const c = pickInstance(r, { family: "C", arch: "x86", cpuHeadroom: 2 }, 2);
 assert.equal(c.best?.type, "c6a.8xlarge"); // 32 vCPU / 64 GiB is the first C size with ≥48 GiB
 console.log("aws ok");
+
+// Sample analyzer (line stats; gzip needs CompressionStream, present in Node 18+)
+import { analyzeSample, lineStats } from "./sample.ts";
+const ls = lineStats('{"a":1}\n\nplain line\n');
+assert.equal(ls.lines, 2);
+assert.equal(ls.rawBytes, 8 + 11); // 7+1 and 10+1
+assert.equal(ls.jsonShare, 0.5);
+const big = Array.from({ length: 500 }, (_, k) => `{"level":"info","service":"orders","msg":"GET /api/${k % 20} 200"}`).join("\n");
+const an = await analyzeSample(big, "zstd");
+assert.ok(an.gzipRatio! > 5 && an.estRatio! > an.gzipRatio!);
+console.log("sample ok");

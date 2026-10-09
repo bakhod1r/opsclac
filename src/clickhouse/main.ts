@@ -1,5 +1,6 @@
 import "../style.css";
 import { bindTooltips, stackedBar } from "../charts.ts";
+import { analyzeSample, type Codec } from "./sample.ts";
 import { awsDefaults, familyNames, HOURS_PER_MONTH, pickInstance, type AwsOptions } from "./aws.ts";
 import { calculate, defaults, fmt, fmtBytesGB, formulaSheet, formulaTable, type Inputs, type Step } from "./calc.ts";
 
@@ -30,7 +31,7 @@ const sections: Section[] = [
       { key: "logLinesPerRequest", label: "Lines / request", step: 0.5 },
       { key: "logExtraEps", label: "Extra lines / s", hint: "not tied to requests (infra, k8s)" },
       { key: "logBytesPerLine", label: "Avg line size", unit: "B" },
-      { key: "logCompression", label: "Compression", unit: "×", hint: "8–15 for logs" },
+      { key: "logCompression", label: "Compression", unit: "×", hint: "LZ4 ~6–10, ZSTD(1) ~8–15; or measure a sample below" },
     ],
   },
   {
@@ -39,7 +40,7 @@ const sections: Section[] = [
       { key: "spansPerRequest", label: "Spans / request" },
       { key: "spanBytes", label: "Avg span size", unit: "B" },
       { key: "traceSamplingPct", label: "Sampling", unit: "%" },
-      { key: "traceCompression", label: "Compression", unit: "×", hint: "6–12 for traces" },
+      { key: "traceCompression", label: "Compression", unit: "×", hint: "LZ4 ~5–8, ZSTD(1) ~6–12" },
     ],
   },
   {
@@ -144,6 +145,19 @@ form.innerHTML = sections
   </fieldset>`,
   )
   .join("") +
+  `<fieldset class="card" id="sample">
+    <legend>Measure from sample logs</legend>
+    <p class="desc">Paste real log lines (1,000+ for a good estimate). They are measured in your browser and never uploaded.</p>
+    <textarea id="sample-text" rows="6" spellcheck="false" placeholder='{"ts":"2026-10-09T10:00:00Z","level":"info","service":"orders","msg":"order created","order_id":"A-1042"}'></textarea>
+    <label><span>ClickHouse codec</span><select id="sample-codec">
+      <option value="zstd">ZSTD(1)</option><option value="lz4">LZ4</option>
+    </select></label>
+    <div class="sample-actions">
+      <button type="button" id="sample-example">Load example</button>
+      <button type="button" id="sample-run">Measure</button>
+    </div>
+    <div id="sample-out" class="sample-out" hidden></div>
+  </fieldset>` +
   `<fieldset class="card">
     <legend>AWS instance</legend>
     <label><span>Family</span><select data-aws="family">
@@ -163,6 +177,54 @@ function fillForm() {
     el.value = String(aws[el.dataset.aws as keyof AwsOptions]);
   });
 }
+
+const EXAMPLE_LOGS = Array.from({ length: 400 }, (_, k) => {
+  const svc = ["orders", "payments", "users", "catalog", "gateway"].at(k % 5);
+  const lvl = k % 17 === 0 ? "error" : k % 5 === 0 ? "warn" : "info";
+  const ms = 5 + ((k * 37) % 480);
+  return JSON.stringify({
+    ts: new Date(Date.UTC(2026, 9, 9, 10, 0, k % 60, (k * 13) % 1000)).toISOString(),
+    level: lvl, service: svc, trace_id: (k * 2654435761 >>> 0).toString(16).padStart(8, "0") + "c0ffee" + (k % 97),
+    msg: lvl === "error" ? "upstream timeout" : `GET /api/v1/${svc}/${1000 + (k % 250)} 200`,
+    duration_ms: ms, http_status: lvl === "error" ? 504 : 200, host: `ip-10-0-${k % 4}-${20 + (k % 30)}`,
+  });
+}).join("\n");
+
+const sampleText = form.querySelector<HTMLTextAreaElement>("#sample-text")!;
+const sampleOut = form.querySelector<HTMLDivElement>("#sample-out")!;
+form.querySelector("#sample-example")!.addEventListener("click", () => {
+  sampleText.value = EXAMPLE_LOGS;
+});
+form.querySelector("#sample-run")!.addEventListener("click", async () => {
+  const codec = form.querySelector<HTMLSelectElement>("#sample-codec")!.value as Codec;
+  const st = await analyzeSample(sampleText.value, codec);
+  sampleOut.hidden = false;
+  if (!st.lines) {
+    sampleOut.innerHTML = `<p class="warn">Paste at least one log line first.</p>`;
+    return;
+  }
+  const size = Math.round(st.avgBytes);
+  const ratio = st.estRatio ? Math.max(1, Math.round(st.estRatio * 10) / 10) : undefined;
+  sampleOut.innerHTML = `
+    <table class="steps"><tbody>
+      <tr><th>Lines</th><td class="f">non-empty lines</td><td class="v">${fmt(st.lines, 0)}</td></tr>
+      <tr><th>Avg line size</th><td class="f">${fmt(st.rawBytes, 0)} B ÷ ${fmt(st.lines, 0)}</td><td class="v">${size} B</td></tr>
+      <tr><th>Min / max</th><td class="f">bytes per line</td><td class="v">${st.minBytes} / ${st.maxBytes} B</td></tr>
+      <tr><th>JSON lines</th><td class="f">parse as JSON objects</td><td class="v">${Math.round(st.jsonShare * 100)}%</td></tr>
+      ${st.gzipRatio ? `<tr><th>gzip ratio</th><td class="f">${fmt(st.rawBytes, 0)} B ÷ ${fmt(st.gzipBytes!, 0)} B</td><td class="v">${fmt(st.gzipRatio)}×</td></tr>
+      <tr><th>ClickHouse estimate</th><td class="f">gzip × ${codec === "zstd" ? "1.2 (ZSTD, columnar)" : "0.85 (LZ4)"}</td><td class="v">${ratio}×</td></tr>` : `<tr><th>Compression</th><td class="f">this browser can't measure it</td><td class="v">—</td></tr>`}
+    </tbody></table>
+    ${st.lines < 1000 ? `<p class="warn">Only ${fmt(st.lines, 0)} lines: small samples compress worse than real traffic. Paste 1,000+ lines for a better estimate.</p>` : ""}
+    <p class="note" style="margin:6px 0">Estimate only. After a day of real data, read the true ratio from <code>system.parts</code> (see the guide).</p>
+    <button type="button" id="sample-apply">Use ${size} B${ratio ? ` and ${ratio}×` : ""} for logs</button>`;
+  sampleOut.querySelector("#sample-apply")!.addEventListener("click", () => {
+    inputs = { ...inputs, logBytesPerLine: size, ...(ratio ? { logCompression: ratio } : {}) };
+    save(inputs);
+    fillForm();
+    render();
+    sampleOut.querySelector<HTMLButtonElement>("#sample-apply")!.textContent = "Applied to Logs ✓";
+  });
+});
 
 form.addEventListener("input", (e) => {
   const el = e.target as HTMLInputElement;

@@ -132,3 +132,8 @@ select { width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid va
 .aws-t thead th { text-align: right; }
 .aws-t thead th:first-child { text-align: left; }
 .aws-t { margin-bottom: 12px; }
+textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: 12px/1.4 ui-monospace, monospace; resize: vertical; }
+.sample-actions { display: flex; gap: 8px; justify-content: flex-end; margin: 8px 0; }
+.sample-actions button, .sample-out button { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 8px; padding: 6px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+#sample-run, #sample-apply { background: var(--accent); border-color: var(--accent); color: #fff; }
+.sample-out .steps { font-size: 13px; }

@@ -54,6 +54,24 @@ samples/s = active series ÷ scrape interval</pre>
        sum(data_uncompressed_bytes) / sum(data_compressed_bytes) AS ratio
 FROM system.parts WHERE active GROUP BY table;</pre>
   ${steps([logs.steps[3], traces.steps[3], metrics.steps[3]])}
+  <h3>LZ4 or ZSTD</h3>
+  <p>ClickHouse compresses every column with <b>LZ4</b> by default: fast, but weaker. <b>ZSTD(1)</b> usually saves about
+  <b>30% more disk</b> for a little more CPU on insert and merge. With batched inserts that CPU is negligible. Set it as the default
+  for columns that have no codec of their own (SigNoz tables already set codecs on many columns):</p>
+  <pre class="formula">&lt;!-- /etc/clickhouse-server/config.d/compression.xml --&gt;
+&lt;clickhouse&gt;
+  &lt;compression&gt;
+    &lt;case&gt;&lt;method&gt;zstd&lt;/method&gt;&lt;level&gt;1&lt;/level&gt;&lt;/case&gt;
+  &lt;/compression&gt;
+&lt;/clickhouse&gt;</pre>
+  <p>It applies to newly written parts and to parts rewritten by merges.</p>
+  <table class="steps"><tbody>
+    <tr><th>LZ4 (default)</th><td class="f">logs ~6–10×, traces ~5–8×</td><td class="v">least CPU</td></tr>
+    <tr><th>ZSTD(1)</th><td class="f">logs ~8–15×, traces ~6–12×</td><td class="v">recommended</td></tr>
+    <tr><th>ZSTD(3+)</th><td class="f">a few % better than ZSTD(1)</td><td class="v">rarely worth it</td></tr>
+  </tbody></table>
+  <p>No data yet? Paste sample log lines into <a href="../#sample">Measure from sample logs</a> on the calculator: it measures the
+  average line size and estimates the ratio in your browser.</p>
 
   <h2>4. Retention</h2>
   <p>With <code>PARTITION BY toDate(ts)</code> and a TTL, ClickHouse drops whole days, so for a while you
