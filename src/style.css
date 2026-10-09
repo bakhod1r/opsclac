@@ -33,6 +33,7 @@ main { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 16px
 @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px 16px; } }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 0 0 16px; }
 fieldset.card legend { font-weight: 600; padding: 0 4px; }
+fieldset.card { padding: 12px 16px; }
 .desc { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
 label { display: grid; grid-template-columns: 1fr 140px; gap: 2px 12px; align-items: center; margin: 8px 0; font-size: 14px; }
 label em { color: var(--muted); font-style: normal; }
@@ -59,33 +60,18 @@ td, th { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: l
 .note { color: var(--muted); font-size: 12px; margin-top: 16px; }
 code { font-size: 11px; word-break: break-all; }
 .back { color: var(--accent); text-decoration: none; font-size: 14px; width: 100%; }
-.landing { max-width: 1080px; margin: 0 auto; padding: 0 20px 40px; }
-.landing section { margin: 0 0 48px; }
-.landing h2 { font-size: 22px; margin-bottom: 16px; }
-.landing h3 { margin: 0 0 6px; font-size: 16px; }
-.landing p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-.hero { padding: 56px 0 8px; text-align: center; }
-.logo { display: inline-block; font-weight: 700; color: var(--accent); background: var(--tile); border-radius: 999px; padding: 4px 14px; margin-bottom: 18px; }
-.hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.15; margin: 0 0 16px; }
-.hl { color: var(--accent); }
-.hero .lead { max-width: 640px; margin: 0 auto 28px; font-size: 17px; }
-.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btn { padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); text-decoration: none; font-weight: 600; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn:hover { filter: brightness(1.08); }
-.steps3, .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.steps3 .card, .why .card { margin: 0; }
-.steps3 b { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; margin-bottom: 10px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-.calc-card { display: flex; flex-direction: column; margin: 0; color: inherit; text-decoration: none; transition: border-color .15s, transform .15s; }
-.calc-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.calc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.calc-head h3 { margin: 0; }
-.icon { font-size: 22px; }
-.badge { margin-left: auto; white-space: nowrap; font-size: 11px; background: var(--tile); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
-.calc-card ul { margin: 10px 0 0; padding-left: 18px; font-size: 13px; flex: 1; }
-.calc-card li { margin: 2px 0; }
-.open { margin-top: 12px; color: var(--accent); font-weight: 600; font-size: 14px; }
-.calc-card.soon { opacity: .55; pointer-events: none; }
-footer { text-align: center; color: var(--muted); font-size: 13px; padding-top: 16px; border-top: 1px solid var(--border); }
-footer a { color: var(--accent); }
+.landing { max-width: 640px; margin: 0 auto; padding: 72px 20px 40px; }
+.hero h1 { margin: 0 0 8px; font-size: 32px; }
+.hero p { margin: 0 0 40px; color: var(--muted); }
+.list { border-top: 1px solid var(--border); }
+.row { display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: baseline; padding: 16px 4px; border-bottom: 1px solid var(--border); color: inherit; text-decoration: none; }
+.row span { color: var(--muted); font-size: 14px; }
+.row i { font-style: normal; color: var(--accent); }
+.row:hover b { color: var(--accent); }
+.row.soon { opacity: .45; pointer-events: none; }
+.row.soon i { color: var(--muted); font-size: 12px; }
+@media (max-width: 480px) { .row { grid-template-columns: 1fr auto; } .row span { grid-column: 1 / -1; grid-row: 2; } }
+footer { margin-top: 40px; font-size: 13px; }
+footer a { color: var(--muted); }
+summary { cursor: pointer; font-weight: 600; }
+details[open] summary { margin-bottom: 8px; }

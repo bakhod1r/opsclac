@@ -11,70 +11,63 @@ interface Field {
 }
 interface Section {
   title: string;
-  desc: string;
   fields: Field[];
 }
 
 const sections: Section[] = [
   {
-    title: "1. Trafik",
-    desc: "Backendga keladigan so'rovlar",
+    title: "Traffic",
     fields: [
-      { key: "requestsPerHour", label: "Request / soat", hint: "masalan 10 000 000" },
-      { key: "peakFactor", label: "Peak koeffitsienti", unit: "×", step: 0.5, hint: "peak ÷ o'rtacha, odatda 2–3" },
+      { key: "requestsPerHour", label: "Requests / hour" },
+      { key: "peakFactor", label: "Peak factor", unit: "×", step: 0.5, hint: "peak ÷ avg, usually 2–3" },
     ],
   },
   {
-    title: "2. Logs",
-    desc: "Har bir request yozadigan log qatorlari",
+    title: "Logs",
     fields: [
-      { key: "logLinesPerRequest", label: "Qator / request", step: 0.5 },
-      { key: "logExtraEps", label: "Qo'shimcha qator / s", hint: "request'ga bog'liq bo'lmagan loglar (infra, k8s)" },
-      { key: "logBytesPerLine", label: "O'rtacha qator hajmi", unit: "B" },
-      { key: "logCompression", label: "Siqish", unit: "×", hint: "loglar uchun 8–15" },
+      { key: "logLinesPerRequest", label: "Lines / request", step: 0.5 },
+      { key: "logExtraEps", label: "Extra lines / s", hint: "not tied to requests (infra, k8s)" },
+      { key: "logBytesPerLine", label: "Avg line size", unit: "B" },
+      { key: "logCompression", label: "Compression", unit: "×", hint: "8–15 for logs" },
     ],
   },
   {
-    title: "3. Traces",
-    desc: "Har bir request hosil qiladigan spanlar",
+    title: "Traces",
     fields: [
-      { key: "spansPerRequest", label: "Span / request" },
-      { key: "spanBytes", label: "O'rtacha span hajmi", unit: "B" },
+      { key: "spansPerRequest", label: "Spans / request" },
+      { key: "spanBytes", label: "Avg span size", unit: "B" },
       { key: "traceSamplingPct", label: "Sampling", unit: "%" },
-      { key: "traceCompression", label: "Siqish", unit: "×", hint: "tracelar uchun 6–12" },
+      { key: "traceCompression", label: "Compression", unit: "×", hint: "6–12 for traces" },
     ],
   },
   {
-    title: "4. Metrics",
-    desc: "Prometheus/OTel metrikalari",
+    title: "Metrics",
     fields: [
-      { key: "activeSeries", label: "Aktiv seriyalar", hint: "prometheus_tsdb_head_series" },
+      { key: "activeSeries", label: "Active series" },
       { key: "scrapeIntervalSec", label: "Scrape interval", unit: "s" },
-      { key: "sampleBytes", label: "Xom sample hajmi", unit: "B", hint: "label'lar bilan qator hajmi" },
-      { key: "metricCompression", label: "Siqish", unit: "×", hint: "Delta/Gorilla bilan 10–30" },
+      { key: "sampleBytes", label: "Raw sample size", unit: "B" },
+      { key: "metricCompression", label: "Compression", unit: "×", hint: "10–30 with Delta/Gorilla" },
     ],
   },
   {
-    title: "5. Saqlash",
-    desc: "Retention, replika va zaxira",
+    title: "Storage",
     fields: [
-      { key: "retentionDays", label: "Retention", unit: "kun" },
-      { key: "extraPartitionDays", label: "Qo'shimcha partitsiya", unit: "kun", hint: "TTL butun kunni o'chirguncha" },
-      { key: "replicas", label: "Replika soni" },
-      { key: "shards", label: "Shard soni" },
-      { key: "maxDiskFillPct", label: "Disk to'lish chegarasi", unit: "%", hint: "merge uchun bo'sh joy, ≤75%" },
-      { key: "yearlyGrowthPct", label: "Yillik o'sish", unit: "%" },
+      { key: "retentionDays", label: "Retention", unit: "days" },
+      { key: "extraPartitionDays", label: "Extra partition", unit: "days" },
+      { key: "replicas", label: "Replicas" },
+      { key: "shards", label: "Shards" },
+      { key: "maxDiskFillPct", label: "Max disk fill", unit: "%", hint: "keep ≤75% for merges" },
+      { key: "yearlyGrowthPct", label: "Yearly growth", unit: "%" },
     ],
   },
   {
-    title: "6. I/O va so'rovlar",
-    desc: "Throughput va IOPS uchun",
+    title: "I/O & queries",
     fields: [
-      { key: "writeAmplification", label: "Write amplification", unit: "×", step: 0.5, hint: "merge tufayli 3–5" },
-      { key: "ioBlockKB", label: "I/O blok hajmi", unit: "KB" },
-      { key: "concurrentQueries", label: "Parallel so'rovlar" },
-      { key: "scannedGBPerQuery", label: "Bitta so'rov skan qiladi", unit: "GB", step: 0.5, hint: "siqilgan hajm" },
-      { key: "targetLatencySec", label: "Kutilgan javob vaqti", unit: "s" },
+      { key: "writeAmplification", label: "Write amplification", unit: "×", step: 0.5, hint: "merges, 3–5" },
+      { key: "ioBlockKB", label: "I/O block size", unit: "KB" },
+      { key: "concurrentQueries", label: "Concurrent queries" },
+      { key: "scannedGBPerQuery", label: "Scanned per query", unit: "GB", step: 0.5, hint: "compressed" },
+      { key: "targetLatencySec", label: "Target latency", unit: "s" },
     ],
   },
 ];
@@ -104,8 +97,8 @@ app.innerHTML = `
   <header>
     <a class="back" href="../">← OpsCalc</a>
     <h1>ClickHouse sizing</h1>
-    <p>ClickHouse: Logs + Traces + Metrics uchun disk, throughput va IOPS kalkulyatori</p>
-    <button id="reset" type="button">Standart qiymatlar</button>
+    <p>Disk, throughput and IOPS for logs, traces and metrics</p>
+    <button id="reset" type="button">Reset</button>
   </header>
   <main>
     <section id="form"></section>
@@ -119,7 +112,6 @@ form.innerHTML = sections
     (s) => `
   <fieldset class="card">
     <legend>${s.title}</legend>
-    <p class="desc">${s.desc}</p>
     ${s.fields
       .map(
         (f) => `
@@ -169,21 +161,22 @@ const stepsTable = (steps: Step[]) => `
 const out = app.querySelector<HTMLElement>("#out")!;
 function render() {
   const r = calculate(inputs);
+  const open = out.querySelector("details")?.open ? " open" : "";
   out.innerHTML = `
     <div class="card summary">
-      <h2>Natija</h2>
+      
       <div class="tiles">
         <div><b>${fmtBytesGB(r.perNodeDiskGB)}</b><span>SSD / node</span></div>
-        <div><b>${fmtBytesGB(r.perNodeDiskWithGrowthGB)}</b><span>SSD / node (+o'sish)</span></div>
-        <div><b>${fmtBytesGB(r.clusterDiskGB)}</b><span>Klaster jami (${r.nodes} node)</span></div>
-        <div><b>${fmt(r.writeMBsPeak)} MB/s</b><span>Yozish peak</span></div>
-        <div><b>${fmt(r.readMBs)} MB/s</b><span>O'qish</span></div>
+        <div><b>${fmtBytesGB(r.perNodeDiskWithGrowthGB)}</b><span>SSD / node (+growth)</span></div>
+        <div><b>${fmtBytesGB(r.clusterDiskGB)}</b><span>Cluster total (${r.nodes} nodes)</span></div>
+        <div><b>${fmt(r.writeMBsPeak)} MB/s</b><span>Write peak</span></div>
+        <div><b>${fmt(r.readMBs)} MB/s</b><span>Read</span></div>
         <div><b>${fmt(r.iops, 0)}</b><span>IOPS</span></div>
         <div><b>${r.ramGB} GB</b><span>RAM / node</span></div>
         <div><b>${r.vcpu}</b><span>vCPU / node</span></div>
       </div>
       <table class="bysignal">
-        <thead><tr><th></th><th>O'rtacha/s</th><th>Peak/s</th><th>Xom/kun</th><th>Siqilgan/kun</th><th>${inputs.retentionDays}+${inputs.extraPartitionDays} kun</th></tr></thead>
+        <thead><tr><th></th><th>Avg/s</th><th>Peak/s</th><th>Raw/day</th><th>Compressed/day</th><th>${inputs.retentionDays}+${inputs.extraPartitionDays} days</th></tr></thead>
         <tbody>
           ${r.signals
             .map(
@@ -194,14 +187,14 @@ function render() {
         </tbody>
       </table>
     </div>
-    <div class="card">
-      <h2>Hisoblash qadamlari</h2>
+    <details class="card"${open}>
+      <summary>How it's calculated</summary>
       ${r.signals.map((s) => `<h3>${s.name}</h3>${stepsTable(s.steps)}`).join("")}
       <h3>Disk, throughput, IOPS</h3>
       ${stepsTable(r.steps)}
-      <p class="note">Siqish koeffitsienti taxminiy. Real qiymatni o'lchash:
+      <p class="note">Compression ratios are estimates. Measure yours:
       <code>SELECT table, sum(data_uncompressed_bytes)/sum(data_compressed_bytes) FROM system.parts WHERE active GROUP BY table</code></p>
-    </div>
+    </details>
   `;
 }
 

@@ -131,23 +131,23 @@ function signal(
     steps: [
       epsStep,
       {
-        label: "Peak hodisa/s",
+        label: "Peak events/s",
         formula: `${fmt(epsAvg)} × ${i.peakFactor}`,
         value: `${fmt(epsPeak)} /s`,
       },
       {
-        label: "Kunlik xom hajm",
+        label: "Raw per day",
         formula: `${fmt(epsAvg)} × ${fmt(bytesPerEvent)} B × 86 400 s`,
         value: fmtBytesGB(rawGBPerDay),
       },
       {
-        label: "Kunlik siqilgan",
+        label: "Compressed per day",
         formula: `${fmtBytesGB(rawGBPerDay)} ÷ ${compression}`,
         value: fmtBytesGB(compressedGBPerDay),
       },
       {
-        label: "Retention davomida (1 nusxa)",
-        formula: `${fmtBytesGB(compressedGBPerDay)} × (${i.retentionDays} + ${i.extraPartitionDays}) kun`,
+        label: "Retained (1 copy)",
+        formula: `${fmtBytesGB(compressedGBPerDay)} × (${i.retentionDays} + ${i.extraPartitionDays}) days`,
         value: fmtBytesGB(retainedGB),
       },
     ],
@@ -159,29 +159,29 @@ export function calculate(i: Inputs): Result {
 
   const logEps = rps * i.logLinesPerRequest + i.logExtraEps;
   const logs = signal("Logs", logEps, i.logBytesPerLine, i.logCompression, i, {
-    label: "O'rtacha qator/s",
+    label: "Avg lines/s",
     formula: `${fmt(i.requestsPerHour, 0)} ÷ 3600 × ${i.logLinesPerRequest}${i.logExtraEps ? ` + ${fmt(i.logExtraEps)}` : ""}`,
     value: `${fmt(logEps)} /s`,
   });
 
   const spanEps = rps * i.spansPerRequest * (i.traceSamplingPct / 100);
   const traces = signal("Traces", spanEps, i.spanBytes, i.traceCompression, i, {
-    label: "O'rtacha span/s",
+    label: "Avg spans/s",
     formula: `${fmt(i.requestsPerHour, 0)} ÷ 3600 × ${i.spansPerRequest} × ${i.traceSamplingPct}%`,
     value: `${fmt(spanEps)} /s`,
   });
 
   const sampleEps = i.scrapeIntervalSec > 0 ? i.activeSeries / i.scrapeIntervalSec : 0;
   const metrics = signal("Metrics", sampleEps, i.sampleBytes, i.metricCompression, i, {
-    label: "O'rtacha sample/s",
-    formula: `${fmt(i.activeSeries, 0)} seriya ÷ ${i.scrapeIntervalSec} s`,
+    label: "Avg samples/s",
+    formula: `${fmt(i.activeSeries, 0)} series ÷ ${i.scrapeIntervalSec} s`,
     value: `${fmt(sampleEps)} /s`,
   });
   // Scrape load is steady; peak factor does not apply to metrics.
   metrics.epsPeak = sampleEps;
   metrics.steps[1] = {
-    label: "Peak sample/s",
-    formula: "scrape yuki doimiy (peak = o'rtacha)",
+    label: "Peak samples/s",
+    formula: "scrape load is steady (peak = avg)",
     value: `${fmt(sampleEps)} /s`,
   };
 
@@ -209,43 +209,43 @@ export function calculate(i: Inputs): Result {
 
   const steps: Step[] = [
     {
-      label: "Jami saqlanadigan (1 nusxa)",
+      label: "Total retained (1 copy)",
       formula: signals.map((s) => fmtBytesGB(s.retainedGB)).join(" + "),
       value: fmtBytesGB(totalRetainedGB),
     },
     {
-      label: "Klaster diski",
-      formula: `${fmtBytesGB(totalRetainedGB)} × ${i.replicas} replika ÷ ${i.maxDiskFillPct}%`,
+      label: "Cluster disk",
+      formula: `${fmtBytesGB(totalRetainedGB)} × ${i.replicas} replicas ÷ ${i.maxDiskFillPct}%`,
       value: fmtBytesGB(clusterDiskGB),
     },
     {
-      label: "Har bir node diski",
+      label: "Disk per node",
       formula: `${fmtBytesGB(totalRetainedGB)} ÷ ${i.shards} shard ÷ ${i.maxDiskFillPct}%`,
       value: fmtBytesGB(perNodeDiskGB),
     },
     {
-      label: "Node diski + 1 yillik o'sish",
+      label: "Disk per node + 1y growth",
       formula: `${fmtBytesGB(perNodeDiskGB)} × (1 + ${i.yearlyGrowthPct}%)`,
       value: fmtBytesGB(perNodeDiskWithGrowthGB),
     },
     {
-      label: "Siqilgan ingest (node)",
-      formula: `${fmtBytesGB(compressedPerDay)}/kun ÷ 86 400 s ÷ ${i.shards} shard`,
+      label: "Compressed ingest (node)",
+      formula: `${fmtBytesGB(compressedPerDay)}/day ÷ 86 400 s ÷ ${i.shards} shard`,
       value: `${fmt(ingestMBs, 2)} MB/s`,
     },
     {
-      label: "Yozish (o'rtacha)",
+      label: "Write (avg)",
       formula: `${fmt(ingestMBs, 2)} MB/s × ${i.writeAmplification} (merge)`,
       value: `${fmt(writeMBsAvg)} MB/s`,
     },
     {
-      label: "Yozish (peak)",
-      formula: "logs/traces peak factor bilan, metrics doimiy",
+      label: "Write (peak)",
+      formula: "logs/traces × peak factor, metrics steady",
       value: `${fmt(writeMBsPeak)} MB/s`,
     },
     {
-      label: "O'qish",
-      formula: `${i.scannedGBPerQuery} GB ÷ ${i.targetLatencySec} s × ${i.concurrentQueries} so'rov ÷ ${i.shards} shard`,
+      label: "Read",
+      formula: `${i.scannedGBPerQuery} GB ÷ ${i.targetLatencySec} s × ${i.concurrentQueries} queries ÷ ${i.shards} shard`,
       value: `${fmt(readMBs)} MB/s`,
     },
     {
@@ -255,12 +255,12 @@ export function calculate(i: Inputs): Result {
     },
     {
       label: "RAM (node)",
-      formula: "max(32, kunlik siqilgan × 20%) — 16 GB ga yaxlitlangan",
+      formula: "max(32, compressed/day × 20%), rounded to 16 GB",
       value: `${ramGB} GB`,
     },
     {
       label: "vCPU (node)",
-      formula: "max(8, o'qish MB/s ÷ ~250 MB/s har yadro)",
+      formula: "max(8, read MB/s ÷ ~250 MB/s per core)",
       value: `${vcpu}`,
     },
   ];
