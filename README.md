@@ -7,6 +7,7 @@ Live: https://bakhod1r.github.io/opsclac/
 ## Calculators
 - **ClickHouse**: disk, throughput, IOPS, RAM and CPU for logs, traces and metrics (`src/clickhouse/calc.ts`)
   - Guide: `/clickhouse/guide/`, system design: `/clickhouse/design/`
+  - AWS instance picker: cheapest EC2 type (C/M/R/I, x86/ARM) that fits the computed vCPU and RAM, plus gp3 size/IOPS/throughput and monthly cost (`src/clickhouse/aws.ts`)
 
 ## Development
 ```bash

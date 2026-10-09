@@ -121,3 +121,14 @@ main > section { min-width: 0; }
 .scroll { overflow-x: auto; max-width: 100%; }
 .guide table.steps { display: block; overflow-x: auto; } .guide .steps .f { word-break: break-word; }
 .fx.sub { display: block; font-weight: 400; margin-top: 2px; white-space: normal; }
+select { width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+.aws-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.aws-pick > div { background: var(--tile); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.aws-pick .lbl { font-size: 12px; color: var(--muted); }
+.aws-pick b { font-size: 20px; }
+.aws-pick small { font-size: 12px; color: var(--muted); }
+.warn { font-size: 13px; margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: rgba(237, 161, 0, .12); }
+.aws-t td { text-align: right; }
+.aws-t thead th { text-align: right; }
+.aws-t thead th:first-child { text-align: left; }
+.aws-t { margin-bottom: 12px; }
