@@ -96,7 +96,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 
 app.innerHTML = `
   <header>
-    <nav class="back"><a href="../">← OpsCalc</a> · <a href="./guide/">How it works</a></nav>
+    <nav class="back"><a href="../">← OpsCalc</a> · <a href="./guide/">How it works</a> · <a href="./design/">System design</a></nav>
     <h1>ClickHouse sizing</h1>
     <p>Disk, throughput and IOPS for logs, traces and metrics</p>
     <button id="reset" type="button">Reset</button>

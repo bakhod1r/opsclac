@@ -103,3 +103,19 @@ details[open] summary { margin-bottom: 8px; }
 .viz-tip { position: fixed; display: none; pointer-events: none; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 10; }
 .cta { margin-top: 32px; }
 .summary .chart { margin: 0 0 16px; }
+.guide .tiles { margin: 12px 0; }
+.arch { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 12px 0; }
+.arch i { font-style: normal; color: var(--accent); align-self: center; font-size: 20px; }
+.arch-box { flex: 1 1 120px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.arch-box span { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.arch-box.dark { background: var(--text); color: var(--bg); border-color: var(--text); }
+.arch-box.dark span { color: var(--bg); opacity: .75; }
+.design-t td, .design-t th { white-space: nowrap; }
+.design-t td.num, .design-t th.num { text-align: right; }
+.design-t tr.hl { background: var(--tile); }
+.design-t td { text-align: left; }
+.guide ul, .guide ol { padding-left: 20px; }
+.guide li { margin: 4px 0; }
+@media (min-width: 760px) { .arch { flex-wrap: nowrap; } .arch-box { flex: 1 1 0; min-width: 0; } }
+.design-t thead th { text-align: left; }
+.design-t thead th.num { text-align: right; }

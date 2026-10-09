@@ -6,6 +6,7 @@ Live: https://bakhod1r.github.io/opsclac/
 
 ## Calculators
 - **ClickHouse**: disk, throughput, IOPS, RAM and CPU for logs, traces and metrics (`src/clickhouse/calc.ts`)
+  - Guide: `/clickhouse/guide/`, system design: `/clickhouse/design/`
 
 ## Development
 ```bash

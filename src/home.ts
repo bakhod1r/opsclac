@@ -13,7 +13,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           (c) => `
         <div class="row${c.ready ? "" : " soon"}">
           <a href="./${c.slug}/"><b>${c.title}</b></a><span>${c.desc}</span>
-          <i>${c.ready ? `<a href="./${c.slug}/guide/">guide</a> · <a href="./${c.slug}/">open →</a>` : "soon"}</i>
+          <i>${c.ready ? `<a href="./${c.slug}/guide/">guide</a> · <a href="./${c.slug}/design/">design</a> · <a href="./${c.slug}/">open →</a>` : "soon"}</i>
         </div>`,
         )
         .join("")}

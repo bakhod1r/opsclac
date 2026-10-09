@@ -19,7 +19,7 @@ const retentionCurve = Array.from({ length: 30 }, (_, k) => {
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 <article class="guide">
-  <nav class="back"><a href="../../">← OpsCalc</a> · <a href="../">Open calculator</a></nav>
+  <nav class="back"><a href="../../">← OpsCalc</a> · <a href="../">Open calculator</a> · <a href="../design/">System design</a></nav>
   <h1>How ClickHouse sizing works</h1>
   <p class="lead">A walkthrough of every formula the calculator uses, with a worked example:
   <b>${fmt(i.requestsPerHour, 0)} requests/hour</b>, ${i.retentionDays}-day retention, ${i.replicas} replicas.</p>
