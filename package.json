@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsc --noEmit && node --experimental-strip-types src/calc.test.ts"
+    "test": "tsc --noEmit && node --experimental-strip-types src/clickhouse/calc.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

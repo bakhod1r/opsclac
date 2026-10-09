@@ -30,7 +30,12 @@ yozish MB/s    = siqilgan ingest × write amplification (peak bilan)
 o'qish MB/s    = skan GB ÷ javob vaqti × parallel so'rovlar
 IOPS           = (yozish + o'qish) MB/s ÷ blok hajmi
 ```
-Hisoblash mantig'i: `src/calc.ts`.
+Hisoblash mantig'i: `src/clickhouse/calc.ts`.
+
+## Yangi kalkulyator qo'shish
+1. `src/calculators.ts` ga yozuv qo'shing (`slug`, `title`, `desc`, `ready: true`).
+2. `<slug>/index.html` sahifa va `src/<slug>/main.ts` yarating (`clickhouse/` namuna).
+Home page va build avtomatik yangilanadi.
 
 ## GitHub Pages
 `main` ga push qilinganda `.github/workflows/pages.yml` saytni avtomatik deploy qiladi.

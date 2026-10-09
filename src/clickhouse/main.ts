@@ -1,4 +1,4 @@
-import "./style.css";
+import "../style.css";
 import { calculate, defaults, fmt, fmtBytesGB, type Inputs, type Step } from "./calc.ts";
 
 type Key = keyof Inputs;
@@ -102,7 +102,8 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 
 app.innerHTML = `
   <header>
-    <h1>OpsCalc</h1>
+    <a class="back" href="../">← OpsCalc</a>
+    <h1>ClickHouse sizing</h1>
     <p>ClickHouse: Logs + Traces + Metrics uchun disk, throughput va IOPS kalkulyatori</p>
     <button id="reset" type="button">Standart qiymatlar</button>
   </header>
