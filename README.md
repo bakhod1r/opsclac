@@ -31,3 +31,8 @@ o'qish MB/s    = skan GB ÷ javob vaqti × parallel so'rovlar
 IOPS           = (yozish + o'qish) MB/s ÷ blok hajmi
 ```
 Hisoblash mantig'i: `src/calc.ts`.
+
+## GitHub Pages
+`main` ga push qilinganda `.github/workflows/pages.yml` saytni avtomatik deploy qiladi.
+Bir martalik sozlash: repo **Settings → Pages → Source: GitHub Actions**.
+Manzil: https://bakhod1r.github.io/opsclac/
