@@ -57,8 +57,8 @@ const rows = scenarios.map((s) => ({ s, i: inputsFor(s), r: calculate(inputsFor(
 const mid = rows[1];
 
 const th = rows.map((x) => `<th class="num">${x.s.name}</th>`).join("");
-const tr = (label: string, f: (x: (typeof rows)[number]) => string, hl = false) =>
-  `<tr${hl ? ' class="hl"' : ""}><th>${label}</th>${rows.map((x) => `<td class="num">${f(x)}</td>`).join("")}</tr>`;
+const tr = (label: string, f: (x: (typeof rows)[number]) => string, hl = false, formula = "") =>
+  `<tr${hl ? ' class="hl"' : ""}><th>${label}${formula ? `<span class="fx sub">${formula}</span>` : ""}</th>${rows.map((x) => `<td class="num">${f(x)}</td>`).join("")}</tr>`;
 
 const box = (title: string, sub: string, dark = false) =>
   `<div class="arch-box${dark ? " dark" : ""}"><b>${title}</b><span>${sub}</span></div>`;
@@ -113,23 +113,24 @@ SETTINGS ttl_only_drop_parts = 1;</pre>
     <thead><tr><th></th>${th}</tr></thead>
     <tbody>
       ${tr("Services per request", (x) => `${x.s.services}`)}
-      ${tr("Log lines / request", (x) => `${x.i.logLinesPerRequest} × ${x.s.lineBytes} B`)}
-      ${tr("Spans / request, sampling", (x) => `${x.i.spansPerRequest}, ${x.s.sampling}%`)}
+      ${tr("Log lines / request", (x) => `${x.i.logLinesPerRequest} × ${x.s.lineBytes} B`, false, "services × lines + 2")}
+      ${tr("Spans / request, sampling", (x) => `${x.i.spansPerRequest}, ${x.s.sampling}%`, false, "services × spans + 1")}
       ${tr("Metric series", (x) => `${x.s.series >= 1e6 ? `${fmt(x.s.series / 1e6)}M` : `${fmt(x.s.series / 1000, 0)}k`} / ${x.s.interval} s`)}
       ${tr("Retention", (x) => `${x.s.days} days`, true)}
-      ${tr("Logs / day (compressed)", (x) => fmtBytesGB(x.r.signals[0].compressedGBPerDay))}
-      ${tr("Traces / day (compressed)", (x) => fmtBytesGB(x.r.signals[1].compressedGBPerDay))}
-      ${tr("Metrics / day (compressed)", (x) => fmtBytesGB(x.r.signals[2].compressedGBPerDay))}
-      ${tr("Stored, 1 copy", (x) => `<b>${fmtBytesGB(x.r.totalRetainedGB)}</b>`, true)}
+      ${tr("Logs / day (compressed)", (x) => fmtBytesGB(x.r.signals[0].compressedGBPerDay), false, "RPS × lines × B × 86400 ÷ comp")}
+      ${tr("Traces / day (compressed)", (x) => fmtBytesGB(x.r.signals[1].compressedGBPerDay), false, "RPS × spans × sampling × B × 86400 ÷ comp")}
+      ${tr("Metrics / day (compressed)", (x) => fmtBytesGB(x.r.signals[2].compressedGBPerDay), false, "series ÷ interval × B × 86400 ÷ comp")}
+      ${tr("Stored, 1 copy", (x) => `<b>${fmtBytesGB(x.r.totalRetainedGB)}</b>`, true, "D × (days + 1)")}
       ${tr("Topology", (x) => `${x.s.shards} shard × 2`)}
-      ${tr("Disk / node (+growth)", (x) => `<b>${fmtBytesGB(x.r.perNodeDiskWithGrowthGB)}</b>`, true)}
-      ${tr("Cluster total", (x) => fmtBytesGB(x.r.clusterDiskGB))}
-      ${tr("Write peak / node", (x) => `${fmt(x.r.writeMBsPeak)} MB/s`)}
-      ${tr("RAM / node", (x) => `${x.r.ramGB} GB`)}
+      ${tr("Disk / node (+growth)", (x) => `<b>${fmtBytesGB(x.r.perNodeDiskWithGrowthGB)}</b>`, true, "T ÷ shards ÷ 75% × 1.3")}
+      ${tr("Cluster total", (x) => fmtBytesGB(x.r.clusterDiskGB), false, "T × replicas ÷ 75%")}
+      ${tr("Write peak / node", (x) => `${fmt(x.r.writeMBsPeak)} MB/s`, false, "D_peak ÷ 86400 ÷ shards × 4")}
+      ${tr("RAM / node", (x) => `${x.r.ramGB} GB`, false, "max(32, D ÷ shards × 20%)")}
     </tbody>
   </table></div>
   <h3>Where the space goes</h3>
   ${rows.map((x) => `<p class="note">${x.s.name}: ${fmtBytesGB(x.r.totalRetainedGB)}</p><div class="chart">${stackedBar(x.r.signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}</div>`).join("")}
+  <p class="note"><code class="fx">share = signal stored ÷ total stored</code></p>
   <p class="note">Logs drive the size. Filtering logs and sampling traces is the cheapest way to move from High to Medium.</p>
 
   <h2>How Medium is calculated</h2>

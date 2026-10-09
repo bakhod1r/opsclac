@@ -61,6 +61,7 @@ FROM system.parts WHERE active GROUP BY table;</pre>
   ${steps([logs.steps[4], traces.steps[4], metrics.steps[4]])}
   <h3>Where the space goes</h3>
   <div class="chart" id="c-split">${stackedBar(r.signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}</div>
+  <p class="fxline">stored per signal = per day × (retention + 1)</p>
   <p class="note">Traces usually dominate. Sampling is the cheapest lever: 10% sampling cuts them 10×.</p>
 
   <h2>5. Disk per node</h2>
@@ -70,6 +71,7 @@ cluster   = retained × replicas ÷ max fill</pre>
   ${steps(pick(["Total retained (1 copy)", "Disk per node", "Cluster disk", "Disk per node + 1y growth"]))}
   <h3>Disk per node vs retention</h3>
   <div class="chart" id="c-ret">${lineChart(retentionCurve, { xLabel: "Retention days", yFmt: fmtBytesGB, mark: i.retentionDays })}</div>
+  <p class="fxline">disk/node(days) = D × (days + 1) ÷ shards ÷ max fill</p>
   <p class="note">Disk grows linearly with retention: every extra day adds the same amount.</p>
 
   <h2>6. Write throughput</h2>

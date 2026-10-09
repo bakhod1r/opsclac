@@ -53,12 +53,13 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <div class="bar">
             <p class="note" style="margin:0 0 6px">Example split, 10M req/h, 7 days</p>
             ${stackedBar(calculate(defaults).signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}
+            <p class="fxline">stored = events/s × bytes × 86 400 ÷ compression × (days + 1)</p>
           </div>
         </div>
         <div class="links">
-          <a href="./clickhouse/"><span class="ic">🧮</span><span><b>Calculator</b><small>Your numbers in, hardware out</small></span><span class="go">→</span></a>
-          <a href="./clickhouse/guide/"><span class="ic">📘</span><span><b>How it works</b><small>Every formula, with charts</small></span><span class="go">→</span></a>
-          <a href="./clickhouse/design/"><span class="ic">🏗️</span><span><b>System design</b><small>3,000 req/s, 10 services, 3 scenarios</small></span><span class="go">→</span></a>
+          <a href="./clickhouse/"><span class="ic">🧮</span><span><b>Calculator</b><small>disk/node = stored ÷ shards ÷ 75%</small></span><span class="go">→</span></a>
+          <a href="./clickhouse/guide/"><span class="ic">📘</span><span><b>How it works</b><small>raw/day = events/s × bytes × 86 400</small></span><span class="go">→</span></a>
+          <a href="./clickhouse/design/"><span class="ic">🏗️</span><span><b>System design</b><small>3,000 req/s × 10 services, 3 scenarios</small></span><span class="go">→</span></a>
         </div>
       </div>
       <div class="soon-grid">

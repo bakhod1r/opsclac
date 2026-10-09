@@ -162,7 +162,8 @@ const stepsTable = (steps: Step[]) => `
 const out = app.querySelector<HTMLElement>("#out")!;
 function render() {
   const r = calculate(inputs);
-  const open = out.querySelector("details")?.open ? " open" : "";
+  const d = out.querySelector("details");
+  const open = !d || d.open ? " open" : "";
   out.innerHTML = `
     <div class="card summary">
       
@@ -178,7 +179,7 @@ function render() {
       </div>
       <div class="chart">${stackedBar(r.signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}</div>
       <table class="bysignal">
-        <thead><tr><th></th><th>Avg/s</th><th>Peak/s</th><th>Raw/day</th><th>Compressed/day</th><th>${inputs.retentionDays}+${inputs.extraPartitionDays} days</th></tr></thead>
+        <thead><tr><th></th><th>Avg/s</th><th>Peak/s</th><th>Raw/day</th><th>Compressed/day</th><th>${inputs.retentionDays}+${inputs.extraPartitionDays} days</th></tr><tr class="frow"><th>formula</th><td>RPS × n</td><td>avg × peak</td><td>avg × B × 86400</td><td>raw ÷ compression</td><td>per day × days</td></tr></thead>
         <tbody>
           ${r.signals
             .map(

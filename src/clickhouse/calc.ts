@@ -316,7 +316,7 @@ export function formulaSheet(i: Inputs, r: Result): Formula[] {
     { name: "Cluster total", symbolic: "C = T × replicas ÷ max fill",
       numbers: `${fmtBytesGB(r.totalRetainedGB)} × ${i.replicas} ÷ ${i.maxDiskFillPct}%`, result: fmtBytesGB(r.clusterDiskGB) },
     { name: "Write peak", symbolic: "W = D_peak ÷ 86400 ÷ shards × write amp.",
-      numbers: `peak ingest × ${i.writeAmplification}`, result: `${fmt(r.writeMBsPeak)} MB/s` },
+      numbers: `${fmt(r.writeMBsPeak / i.writeAmplification, 2)} MB/s × ${i.writeAmplification}`, result: `${fmt(r.writeMBsPeak)} MB/s` },
     { name: "Read", symbolic: "R = scanned GB ÷ latency × queries ÷ shards",
       numbers: `${i.scannedGBPerQuery} GB ÷ ${i.targetLatencySec} s × ${i.concurrentQueries} ÷ ${i.shards}`, result: `${fmt(r.readMBs)} MB/s` },
     { name: "IOPS", symbolic: "(W + R) ÷ block size",
@@ -325,6 +325,6 @@ export function formulaSheet(i: Inputs, r: Result): Formula[] {
 }
 
 export const formulaTable = (f: Formula[]): string =>
-  `<table class="fsheet"><thead><tr><th>Result</th><th>Formula</th><th>With your numbers</th><th class="num">=</th></tr></thead><tbody>${f
+  `<div class="scroll"><table class="fsheet"><thead><tr><th>Result</th><th>Formula</th><th>With your numbers</th><th class="num">=</th></tr></thead><tbody>${f
     .map((x) => `<tr><th>${x.name}</th><td class="sym">${x.symbolic}</td><td class="f">${x.numbers}</td><td class="v">${x.result}</td></tr>`)
-    .join("")}</tbody></table>`;
+    .join("")}</tbody></table></div>`;
