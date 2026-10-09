@@ -1,4 +1,5 @@
 import "../style.css";
+import { bindTooltips, stackedBar } from "../charts.ts";
 import { calculate, defaults, fmt, fmtBytesGB, type Inputs, type Step } from "./calc.ts";
 
 type Key = keyof Inputs;
@@ -95,7 +96,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 
 app.innerHTML = `
   <header>
-    <a class="back" href="../">← OpsCalc</a>
+    <nav class="back"><a href="../">← OpsCalc</a> · <a href="./guide/">How it works</a></nav>
     <h1>ClickHouse sizing</h1>
     <p>Disk, throughput and IOPS for logs, traces and metrics</p>
     <button id="reset" type="button">Reset</button>
@@ -175,6 +176,7 @@ function render() {
         <div><b>${r.ramGB} GB</b><span>RAM / node</span></div>
         <div><b>${r.vcpu}</b><span>vCPU / node</span></div>
       </div>
+      <div class="chart">${stackedBar(r.signals.map((s) => ({ name: s.name, gb: s.retainedGB })))}</div>
       <table class="bysignal">
         <thead><tr><th></th><th>Avg/s</th><th>Peak/s</th><th>Raw/day</th><th>Compressed/day</th><th>${inputs.retentionDays}+${inputs.extraPartitionDays} days</th></tr></thead>
         <tbody>
@@ -196,6 +198,7 @@ function render() {
       <code>SELECT table, sum(data_uncompressed_bytes)/sum(data_compressed_bytes) FROM system.parts WHERE active GROUP BY table</code></p>
     </details>
   `;
+  bindTooltips(out);
 }
 
 fillForm();

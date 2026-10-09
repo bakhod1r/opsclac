@@ -11,9 +11,10 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       ${calculators
         .map(
           (c) => `
-        <a class="row${c.ready ? "" : " soon"}" href="${c.ready ? `./${c.slug}/` : "#"}">
-          <b>${c.title}</b><span>${c.desc}</span><i>${c.ready ? "→" : "soon"}</i>
-        </a>`,
+        <div class="row${c.ready ? "" : " soon"}">
+          <a href="./${c.slug}/"><b>${c.title}</b></a><span>${c.desc}</span>
+          <i>${c.ready ? `<a href="./${c.slug}/guide/">guide</a> · <a href="./${c.slug}/">open →</a>` : "soon"}</i>
+        </div>`,
         )
         .join("")}
     </section>

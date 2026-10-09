@@ -6,6 +6,9 @@
   --border: #e3e6eb;
   --accent: #2563eb;
   --tile: #eef3ff;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--text);
 }
@@ -18,6 +21,9 @@
     --border: #2a3441;
     --accent: #6ea0ff;
     --tile: #1d2a40;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
   }
 }
 * { box-sizing: border-box; }
@@ -67,7 +73,9 @@ code { font-size: 11px; word-break: break-all; }
 .row { display: grid; grid-template-columns: 120px 1fr auto; gap: 12px; align-items: baseline; padding: 16px 4px; border-bottom: 1px solid var(--border); color: inherit; text-decoration: none; }
 .row span { color: var(--muted); font-size: 14px; }
 .row i { font-style: normal; color: var(--accent); }
-.row:hover b { color: var(--accent); }
+.row a { color: inherit; text-decoration: none; }
+.row i a { color: var(--accent); }
+.row b:hover { color: var(--accent); }
 .row.soon { opacity: .45; pointer-events: none; }
 .row.soon i { color: var(--muted); font-size: 12px; }
 @media (max-width: 480px) { .row { grid-template-columns: 1fr auto; } .row span { grid-column: 1 / -1; grid-row: 2; } }
@@ -75,3 +83,23 @@ footer { margin-top: 40px; font-size: 13px; }
 footer a { color: var(--muted); }
 summary { cursor: pointer; font-weight: 600; }
 details[open] summary { margin-bottom: 8px; }
+.guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; line-height: 1.6; }
+.guide h1 { font-size: 30px; margin: 12px 0 8px; }
+.guide h2 { margin: 40px 0 8px; font-size: 20px; }
+.guide .lead { color: var(--muted); font-size: 16px; }
+.guide p { margin: 8px 0; }
+.formula { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 13px; }
+.guide .steps { margin: 8px 0; }
+.chart { margin: 12px 0; }
+.viz { width: 100%; height: 28px; display: block; }
+.viz.line { height: auto; }
+.viz text { font-size: 11px; fill: var(--muted); }
+.viz .lbl { fill: var(--text); font-weight: 600; }
+.viz .grid { stroke: var(--border); stroke-width: 1; }
+.viz [data-tip]:hover { opacity: .85; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.legend b { color: var(--text); font-weight: 600; }
+.viz-tip { position: fixed; display: none; pointer-events: none; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 10; }
+.cta { margin-top: 32px; }
+.summary .chart { margin: 0 0 16px; }
