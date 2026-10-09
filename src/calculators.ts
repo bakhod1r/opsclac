@@ -7,7 +7,7 @@ export interface Calculator {
 }
 
 export const calculators: Calculator[] = [
-  { slug: "clickhouse", title: "ClickHouse", desc: "Disk, IOPS, RAM and CPU for logs, traces and metrics.", ready: true },
+  { slug: "clickhouse", title: "ClickHouse servers for logs, metrics & traces", desc: "Pick servers: disk, IOPS, RAM and CPU.", ready: true },
   { slug: "kafka", title: "Kafka", desc: "Brokers, disk and partitions.", ready: false },
   { slug: "kubernetes", title: "Kubernetes", desc: "Node count and resource headroom.", ready: false },
   { slug: "postgres", title: "PostgreSQL", desc: "Disk, IOPS and memory.", ready: false },

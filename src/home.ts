@@ -26,7 +26,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <p class="sub">Calculators for disk, throughput, IOPS, RAM and CPU. Enter your traffic, get the hardware —
         and see every formula behind every number.</p>
         <div class="ctas">
-          <a class="b p" href="./clickhouse/">Open ClickHouse calculator →</a>
+          <a class="b p" href="./clickhouse/">Size ClickHouse servers →</a>
           <a class="b" href="./clickhouse/design/">See a system design</a>
         </div>
       </div>
@@ -47,7 +47,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <p class="lede">Each one comes with the calculator, a step-by-step guide and a worked system design.</p>
       <div class="feature">
         <div class="info">
-          <h3>ClickHouse sizing</h3>
+          <h3>ClickHouse server sizing for logs, metrics &amp; traces</h3>
           <p>Storage and hardware for logs, traces and metrics: SSD per node, cluster size, write/read MB/s, IOPS, RAM and vCPU.</p>
           <div class="chips"><span>observability</span><span>storage</span><span>OpenTelemetry</span></div>
           <div class="bar">
